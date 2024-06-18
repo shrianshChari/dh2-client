@@ -1,2 +1,3 @@
-const server_repo = "https://github.com/scoopapa/DH2.git";
-module.exports = server_repo;
+const server_repo = "https://github.com/shrianshChari/pokemon-showdown.git";
+const branch = "gen3adv200"
+module.exports = { server_repo, branch };
