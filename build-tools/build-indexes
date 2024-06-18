@@ -4,7 +4,7 @@
 const fs = require("fs");
 const path = require('path');
 const child_process = require("child_process");
-const server_repo = require("./server-repo");
+const { server_repo, branch } = require("./server-repo");
 
 const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
@@ -13,7 +13,7 @@ const debug = true;
 
 process.stdout.write("Syncing data from Git repository... ");
 if (!fs.existsSync('./caches/DH2')) {
-	child_process.execSync('git clone ' + server_repo + ' caches/DH2', {
+	child_process.execSync('git clone ' + server_repo + ' -b ' + branch + ' caches/DH2', {
 	});
 	child_process.execSync("git pull " + server_repo, {cwd: 'caches/DH2'});
 }
@@ -1194,7 +1194,7 @@ function buildTeambuilderTables() {
 				// petModFormats[formatCacheMod] = Formats.find(m => m.mod === modConfigId);
 				petModFormats[formatCacheName] = Formats.find(m => toID(m.name) === formatCacheName);
 				const format = petModFormats[formatCacheName];
-				let maxGen = 
+				let maxGen =
 				formatCacheName.substr(0, 3) === 'gen' && parseInt(formatCacheMod.substr(3, 1)) < 10 ? parseInt(formatCacheMod.substr(3, 1)) : 9;
 				if(format.gameType === 'doubles') hasDoublesFormats = true;
 				else hasSinglesFormats = true;
@@ -1369,7 +1369,7 @@ function buildTeambuilderTables() {
 					}
 				}
 			}
-			//items			
+			//items
 			let items = [];
 			const fullItemName = {};
 			BattleTeambuilderTable[modConfigId].fullItemName = fullItemName;
@@ -1403,7 +1403,7 @@ function buildTeambuilderTables() {
 						}
 					}
 				}
-				
+
 				if (modEntry.itemUser || modEntry.megaStone || id === 'boosterenergy') {
 					specificItems.push(id);
 					continue;
