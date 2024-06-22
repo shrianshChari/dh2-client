@@ -4,7 +4,11 @@
 const fs = require("fs");
 const path = require('path');
 const child_process = require("child_process");
-const { server_repo, branch } = require("./server-repo");
+const server_config = require('./server-repo.json');
+
+const server_repo = server_config['server_repo']
+const branch = server_config['branch']
+const directory = 'caches/' + server_config['directory']
 
 const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
@@ -12,22 +16,21 @@ process.chdir(rootDir);
 const debug = true;
 
 process.stdout.write("Syncing data from Git repository... ");
-if (!fs.existsSync('./caches/DH2')) {
-	child_process.execSync('git clone ' + server_repo + ' -b ' + branch + ' caches/DH2', {
+if (!fs.existsSync(directory)) {
+	child_process.execSync(`git clone ${server_repo} -b ${branch} ${directory}`, {
 	});
 }
 
-child_process.execSync("git fetch " + server_repo, {cwd: 'caches/DH2'});
-child_process.execSync("git pull " + server_repo, {cwd: 'caches/DH2'});
-child_process.execSync('npm run build', {cwd: 'caches/DH2'});
+child_process.execSync("git pull", {cwd: directory});
+child_process.execSync('npm run build', {cwd: directory});
 
 console.log("DONE");
 
-const Dex = require('../caches/DH2/dist/sim/dex').Dex;
+const Dex = require(`../${directory}/dist/sim/dex`).Dex;
 const toID = Dex.toID;
 const ModConfigData = require('../config/mod-config').ModConfigData;
 const ModConfig = ModConfigData.ClientMods;
-var Formats = require('../caches/DH2/dist/config/formats.js').Formats;
+var Formats = require(`../${directory}/dist/config/formats.js`).Formats;
 
 for (const modid in Dex.dexes) {
 	try {
@@ -1635,7 +1638,7 @@ function buildTeambuilderTables() {
  *********************************************************/
 
 function buildPokedex() {
-	const Pokedex = requireNoCache('../caches/DH2/dist/data/pokedex.js').Pokedex;
+	const Pokedex = requireNoCache(`../${directory}/dist/data/pokedex.js`).Pokedex;
 	for (const id in Pokedex) {
 		const entry = Pokedex[id];
 		if (Dex.data.FormatsData[id]) {
@@ -1656,7 +1659,7 @@ function buildPokedex() {
  *********************************************************/
 
 function buildMoves() {
-	const Moves = requireNoCache('../caches/DH2/dist/data/moves.js').Moves;
+	const Moves = requireNoCache(`../${directory}/dist/data/moves.js`).Moves;
 	for (const id in Moves) {
 		const move = Dex.moves.get(Moves[id].name);
 		if (move.desc) Moves[id].desc = move.desc;
@@ -1673,7 +1676,7 @@ function buildMoves() {
  *********************************************************/
 
 function buildItems() {
-	const Items = requireNoCache('../caches/DH2/dist/data/items.js').Items;
+	const Items = requireNoCache(`../${directory}/dist/data/items.js`).Items;
 	for (const id in Items) {
 		const item = Dex.items.get(Items[id].name);
 		if (item.desc) Items[id].desc = item.desc;
@@ -1688,7 +1691,7 @@ function buildItems() {
  *********************************************************/
 
 function buildAbilities() {
-	const Abilities = requireNoCache('../caches/DH2/dist/data/abilities.js').Abilities;
+	const Abilities = requireNoCache(`../${directory}/dist/data/abilities.js`).Abilities;
 	for (const id in Abilities) {
 		const ability = Dex.abilities.get(Abilities[id].name);
 		if (ability.desc) Abilities[id].desc = ability.desc;
@@ -1703,7 +1706,7 @@ function buildAbilities() {
  *********************************************************/
 
 function buildTypechart() {
-	const TypeChart = requireNoCache('../caches/DH2/dist/data/typechart.js').TypeChart;
+	const TypeChart = requireNoCache(`../${directory}/dist/data/typechart.js`).TypeChart;
 	const buf = 'exports.BattleTypeChart = ' + es3stringify(TypeChart) + ';';
 	fs.writeFileSync('play.pokemonshowdown.com/data/typechart.js', buf);
 }
@@ -1713,7 +1716,7 @@ function buildTypechart() {
  *********************************************************/
 
 function buildAliases() {
-	const Aliases = requireNoCache('../caches/DH2/dist/data/aliases.js').Aliases;
+	const Aliases = requireNoCache(`../${directory}/dist/data/aliases.js`).Aliases;
 	const buf = 'exports.BattleAliases = ' + es3stringify(Aliases) + ';';
 	fs.writeFileSync('play.pokemonshowdown.com/data/aliases.js', buf);
 }
@@ -1723,7 +1726,7 @@ function buildAliases() {
  *********************************************************/
 
 function buildFormatsData() {
-	const FormatsData = requireNoCache('../caches/DH2/dist/data/formats-data.js').FormatsData;
+	const FormatsData = requireNoCache(`../${directory}/dist/data/formats-data.js`).FormatsData;
 	const buf = 'exports.BattleFormatsData = ' + es3stringify(FormatsData) + ';';
 	fs.writeFileSync('play.pokemonshowdown.com/data/formats-data.js', buf);
 }
@@ -1733,7 +1736,7 @@ function buildFormatsData() {
  *********************************************************/
 
 function buildFormats() {
-	Formats = requireNoCache('../caches/DH2/dist/config/formats.js').Formats;
+	Formats = requireNoCache(`../${directory}/dist/config/formats.js`).Formats;
 	const buf = 'exports.Formats = ' + es3stringify(Formats) + ';';
 	fs.writeFileSync('play.pokemonshowdown.com/data/formats.js', buf);
 }
@@ -1743,7 +1746,7 @@ function buildFormats() {
  *********************************************************/
 
 function buildLearnsets() {
-	const Learnsets = requireNoCache('../caches/DH2/dist/data/learnsets.js').Learnsets;
+	const Learnsets = requireNoCache(`../${directory}/dist/data/learnsets.js`).Learnsets;
 	const buf = 'exports.BattleLearnsets = ' + es3stringify(Learnsets) + ';';
 	fs.writeFileSync('play.pokemonshowdown.com/data/learnsets.js', buf);
 	fs.writeFileSync('play.pokemonshowdown.com/data/learnsets.json', JSON.stringify(Learnsets));
@@ -1755,13 +1758,13 @@ function buildLearnsets() {
 
 function buildModSprites() {
 	const modSprites = {};
-	const modDir = fs.readdirSync('caches/DH2/data/mods/');
+	const modDir = fs.readdirSync(`${directory}/data/mods/`);
 	for (const i in modDir) {
 		const modName = modDir[i];
 		const subFolders = ['anifront', 'anifront-shiny','aniback','aniback-shiny','front', 'front-shiny', 'back', 'back-shiny', 'icons', 'types', 'items', 'cries'];
 		for (const j in subFolders) {
 			const subF = subFolders[j];
-			const spritePath = 'caches/DH2/data/mods/' + modName + (subF === 'cries' ? '/audio/cries' : ('/sprites/' + subF));
+			const spritePath = directory + '/data/mods/' + modName + (subF === 'cries' ? '/audio/cries' : ('/sprites/' + subF));
 			const spriteDir = fs.existsSync(spritePath) ? fs.readdirSync(spritePath) : '';
 			for (const sprI in spriteDir) {
 				let id = spriteDir[sprI];
